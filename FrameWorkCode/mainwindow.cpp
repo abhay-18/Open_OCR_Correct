@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    audioRecorder = new QAudioRecorder(this);
     ui->textBrowser->setMouseTracking(true);
     ui->textBrowser->installEventFilter(this);
     ui->textBrowser->setLineWrapColumnOrWidth(QTextEdit::NoWrap);
@@ -2429,3 +2430,17 @@ void MainWindow::on_actionEnglish_triggered()
 {
     HinFlag = 0 , SanFlag = 0;
 }
+
+void MainWindow::on_start_Rec_clicked()
+{
+    QString filename = "/home/abhay/Desktop/audio/audio.wav";
+    audioRecorder->setOutputLocation(QUrl::fromLocalFile(filename));
+    audioRecorder->record();
+}
+
+
+void MainWindow::on_stop_Rec_clicked()
+{
+    audioRecorder->stop();
+}
+

@@ -34,7 +34,7 @@
 #include<QTime>
 //#include"staticDict.h"
 //#include "lcsqt.h"
-
+#include<QAudioRecorder>
 
 //#include <set>
 using namespace std;
@@ -146,11 +146,16 @@ private slots:
 
     void on_actionEnglish_triggered();
 
+    void on_start_Rec_clicked();
+
+    void on_stop_Rec_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     QString mFilename;
     QString mFilenamejpeg;
+    QAudioRecorder* audioRecorder;
 };
 
 #endif // MAINWINDOW_H

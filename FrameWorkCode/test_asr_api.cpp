@@ -8,17 +8,7 @@
 #include <sstream>
 #include <typeinfo>
 
-// #include "utf8.h"
-
-
 using namespace std;
-
-
-
-// string extractTextValue(const string& s) {
-//     int ix = s.find(':');
-//     return s.substr(ix+1);
-// }
 
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -67,26 +57,10 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
     return response_data;
 }
 
-
-string replaceAllBackslashes(const std::string& input) {
-    std::string result;
-
-    for (char c : input) {
-        if (c == '\\') {
-            result += "\\\\"; // Replace a single backslash with a double backslash
-        } else {
-            result += c; // Keep other characters as they are
-        }
-    }
-
-    return result;
-}
-
-
 int main() {
     string url = "http://localhost:5000/speech-to-text"; // Replace with your API endpoint URL
-    string audioFilePath = "../data/voice_data/data4.wav"; // Replace with the path to your audio file
-
+    string audioFilePath = "/home/abhay/Desktop/audio/audio.flac"; // Replace with the path to your audio file
+    //    /home/abhay/MTP_NEW/data/voice_data/data1.wav
     string response = PerformPostRequest(url, audioFilePath);
     cout << response << std::endl;
 

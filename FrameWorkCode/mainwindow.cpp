@@ -16,7 +16,11 @@
 #include <typeinfo>
 #include <thread>
 #include <chrono>
+#include <cstdio> // Include the C Standard I/O library
+
 using namespace std;
+
+int cnt = 0;
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     // This function will be called by libcurl to write response data
@@ -41,6 +45,8 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
         // Set the POST data (audio file)
         curl_httppost* post = NULL;
         curl_httppost* last = NULL;
+
+        cout<<audioFilePath.c_str()<<endl;
         curl_formadd(&post, &last, CURLFORM_COPYNAME, "file", CURLFORM_FILE, audioFilePath.c_str(), CURLFORM_END);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
 
@@ -60,9 +66,12 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
         curl_easy_cleanup(curl);
         curl_formfree(post);
         curl_global_cleanup();
-    }
+        return response_data;
 
-    return response_data;
+    }
+    else cout<<"Curl not defined"<<endl;
+    return "False";
+
 }
 
 //gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile='page-%00d.jpeg' Book.pdf
@@ -2485,7 +2494,19 @@ void MainWindow::on_actionEnglish_triggered()
 {
     HinFlag = 0 , SanFlag = 0;
 }
+// int cnt = 0;
+int removeFile(const char * filename){
+    int result = remove(filename);
 
+    if (result == 0) {
+        // File deleted successfully
+        std::cout << "File deleted successfully." << std::endl;
+    } else {
+        // Error occurred while deleting the file
+        perror("Error deleting file");
+    }
+    return 0;
+}
 void MainWindow::on_start_Rec_clicked()
 {   
 
@@ -2495,7 +2516,7 @@ void MainWindow::on_start_Rec_clicked()
     audioSettings.setQuality(QMultimedia::HighQuality);
 
     audioRecorder->setEncodingSettings(audioSettings);
-    QString audioFilePath = "/home/abhay/Desktop/audio/audio.flac";
+    QString audioFilePath = QString::fromStdString("/home/abhay/Desktop/audio/audio.flac");
     audioRecorder->setOutputLocation(QUrl::fromLocalFile(audioFilePath));
     audioRecorder->record();
 }
@@ -2504,12 +2525,25 @@ void MainWindow::on_start_Rec_clicked()
 void MainWindow::on_stop_Rec_clicked()
 {
     audioRecorder->stop();
+
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+
+
     cout<<"hello"<<endl;
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    // cout<<"2 secs pass"<<endl;
     string url = "http://localhost:5000/speech-to-text";
+
     string audioFilePath = "/home/abhay/Desktop/audio/audio.flac";
     string response = PerformPostRequest(url, audioFilePath);
+    // const char * path = "/home/abhay/Desktop/audio/audio.flac";
+    // QString qResponse = QString::fromStdString(response);
+    // int rem = removeFile(path);
+    if(response=="False") return;
+    QTextCursor cursor = ui->textBrowser->textCursor();
+
+    cursor.removeSelectedText();
+    cursor.insertText(QString::fromStdString(response));
     cout << response << std::endl;
 }
 

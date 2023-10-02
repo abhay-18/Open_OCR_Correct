@@ -2536,9 +2536,6 @@ void MainWindow::on_stop_Rec_clicked()
 
     string audioFilePath = "/home/abhay/Desktop/audio/audio.flac";
     string response = PerformPostRequest(url, audioFilePath);
-    // const char * path = "/home/abhay/Desktop/audio/audio.flac";
-    // QString qResponse = QString::fromStdString(response);
-    // int rem = removeFile(path);
     if(response=="False") return;
     QTextCursor cursor = ui->textBrowser->textCursor();
 

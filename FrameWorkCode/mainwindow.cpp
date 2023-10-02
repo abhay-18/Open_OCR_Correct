@@ -2510,13 +2510,13 @@ int removeFile(const char * filename){
 void MainWindow::on_start_Rec_clicked()
 {   
 
-    cout<<"start"<<endl;
+    // cout<<"start"<<endl;
     QAudioEncoderSettings audioSettings;
     audioSettings.setCodec("audio/x-flac");
     audioSettings.setQuality(QMultimedia::HighQuality);
 
     audioRecorder->setEncodingSettings(audioSettings);
-    QString audioFilePath = QString::fromStdString("/home/abhay/Desktop/audio/audio.flac");
+    QString audioFilePath = QString::fromStdString("./../data/audio/audio.flac");
     audioRecorder->setOutputLocation(QUrl::fromLocalFile(audioFilePath));
     audioRecorder->record();
 }
@@ -2531,10 +2531,10 @@ void MainWindow::on_stop_Rec_clicked()
 
 
 
-    cout<<"hello"<<endl;
+    // cout<<"hello"<<endl;
     string url = "http://localhost:5000/speech-to-text";
 
-    string audioFilePath = "/home/abhay/Desktop/audio/audio.flac";
+    string audioFilePath = "./../data/audio/audio.flac";
     string response = PerformPostRequest(url, audioFilePath);
     if(response=="False") return;
     QTextCursor cursor = ui->textBrowser->textCursor();

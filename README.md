@@ -38,7 +38,10 @@ Compiled and Tested on Ubuntu Ubuntu 16.04. with Qt 5
 - Click Install on Top Right Corner.
 
 2. Install qt5:
-- $ sudo apt-get install qt5-default
+- $ sudo apt-get install qt5-default.
+
+3. Install libcurl:
+- $ sudo apt-get install libcurl4-openssl-dev
 
 3. Go to folder "FrameWorkCode", compile qpadfinal.pro and make:
 - $ cd FrameWorkCode
@@ -46,6 +49,11 @@ Compiled and Tested on Ubuntu Ubuntu 16.04. with Qt 5
 - $ make
 - Ignore the warnings. Will be removed in the next version.
 
+# How to run the flask API for ASR
+- Activate the virtual enviornment called "api".
+- Install the requirements using command
+  "pip install -r requirements.txt"
+- Run the flask API using "python flask_api_asr.py"
 # How to run the code?
 
 Execute file qpadfinal in folder "FrameWorkCode"

@@ -24,7 +24,7 @@ def convertFlactoWav(flac_data):
     # Get the WAV data as bytes
     wav_bytes = wav_io.getvalue()
     
-    output_directory = "../data/server_data/"
+    output_directory = "../../data/server_data/"
     output_file_name = "output.wav"
 
     # Create the full path for the output file
@@ -51,7 +51,7 @@ def recognize_speech(audio_file_path):
             print("the query is printed='", Query, "'")
         except Exception as e:
             print(e)
-            print("Say that again sir")
+            print("Say that again")
             return "None"
         return Query
     
@@ -59,9 +59,9 @@ def recognize_speech(audio_file_path):
 def speech_to_text_endpoint():
     print(request)
     if "file" in request.files:
-        print("YESSSSS")
+        print("YES")
     else:
-        print("NOOOO")
+        print("NO")
         return "False"
     audio_data = request.files["file"]
     convertFlactoWav(audio_data)
@@ -87,7 +87,7 @@ def speech_to_text_endpoint():
         return jsonify({'error': 'No audio data received'})
 
     # Perform speech recognition
-    recognized_text = recognize_speech("../data/server_data/output.wav")
+    recognized_text = recognize_speech("../../data/server_data/output.wav")
     
     # recognized_text="hello"
     # return jsonify({'text': recognized_text})

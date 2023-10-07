@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGraphicsView>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
@@ -71,9 +72,11 @@ public:
     QAction *actionEnglish;
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout;
+    QGroupBox *groupBox;
     QProgressBar *progressBar;
-    QLineEdit *lineEdit;
     QPushButton *start_Rec;
+    QGroupBox *groupBox_2;
+    QLineEdit *lineEdit;
     QPushButton *stop_Rec;
     QHBoxLayout *horizontalLayout;
     QTextEdit *textEdit;
@@ -187,31 +190,36 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        progressBar = new QProgressBar(centralWidget);
+        groupBox = new QGroupBox(centralWidget);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setEnabled(true);
+        groupBox->setAutoFillBackground(false);
+        groupBox->setFlat(false);
+        progressBar = new QProgressBar(groupBox);
         progressBar->setObjectName(QString::fromUtf8("progressBar"));
+        progressBar->setGeometry(QRect(0, 10, 500, 25));
         progressBar->setMaximumSize(QSize(500, 16777215));
         progressBar->setValue(0);
         progressBar->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        verticalLayout->addWidget(progressBar);
-
-        lineEdit = new QLineEdit(centralWidget);
-        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
-        lineEdit->setMaximumSize(QSize(500, 16777215));
-
-        verticalLayout->addWidget(lineEdit);
-
-        start_Rec = new QPushButton(centralWidget);
+        start_Rec = new QPushButton(groupBox);
         start_Rec->setObjectName(QString::fromUtf8("start_Rec"));
+        start_Rec->setGeometry(QRect(510, 10, 250, 25));
         start_Rec->setMaximumSize(QSize(250, 16777215));
+        
+        verticalLayout->addWidget(groupBox);
 
-        verticalLayout->addWidget(start_Rec);
-
-        stop_Rec = new QPushButton(centralWidget);
+        groupBox_2 = new QGroupBox(centralWidget);
+        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        lineEdit = new QLineEdit(groupBox_2);
+        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+        lineEdit->setGeometry(QRect(0, 0, 500, 25));
+        lineEdit->setMaximumSize(QSize(500, 16777215));
+        stop_Rec = new QPushButton(groupBox_2);
         stop_Rec->setObjectName(QString::fromUtf8("stop_Rec"));
+        stop_Rec->setGeometry(QRect(510, 0, 250, 25));
         stop_Rec->setMaximumSize(QSize(250, 16777215));
 
-        verticalLayout->addWidget(stop_Rec);
+        verticalLayout->addWidget(groupBox_2);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
@@ -258,10 +266,6 @@ public:
         verticalLayout->addLayout(horizontalLayout);
 
         MainWindow->setCentralWidget(centralWidget);
-        lineEdit->raise();
-        progressBar->raise();
-        stop_Rec->raise();
-        start_Rec->raise();
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 1369, 22));
@@ -440,8 +444,16 @@ public:
 #if QT_CONFIG(tooltip)
         actionEnglish->setToolTip(QCoreApplication::translate("MainWindow", "English", nullptr));
 #endif // QT_CONFIG(tooltip)
+        groupBox->setTitle(QString());
         start_Rec->setText(QCoreApplication::translate("MainWindow", "Start Rec", nullptr));
+#if QT_CONFIG(shortcut)
+        start_Rec->setShortcut(QString());
+#endif // QT_CONFIG(shortcut)
+        groupBox_2->setTitle(QString());
         stop_Rec->setText(QCoreApplication::translate("MainWindow", "Stop Rec", nullptr));
+#if QT_CONFIG(shortcut)
+        stop_Rec->setShortcut(QString());
+#endif // QT_CONFIG(shortcut)
         textBrowser->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

@@ -17,10 +17,9 @@
 #include <thread>
 #include <chrono>
 #include <cstdio> // Include the C Standard I/O library
+#include <QShortcut>
 
 using namespace std;
-
-int cnt = 0;
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     // This function will be called by libcurl to write response data
@@ -71,7 +70,6 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
     }
     else cout<<"Curl not defined"<<endl;
     return "False";
-
 }
 
 //gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile='page-%00d.jpeg' Book.pdf
@@ -95,7 +93,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    isRecording = false;
     audioRecorder = new QAudioRecorder(this);
+    // Set shortcut for starting recording
+    // ui->start_Rec->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+    QShortcut *startShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q), this);
+
+    connect(startShortcut, SIGNAL(activated()), this, SLOT(on_start_Rec_clicked()));
+    
+    // Set shortcut for stopping recording
+    QShortcut *stopShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_W), this);
+
+    // Connect slot for stopping recording
+    connect(stopShortcut, SIGNAL(activated()), this, SLOT(on_stop_Rec_clicked()));
+
     ui->textBrowser->setMouseTracking(true);
     ui->textBrowser->installEventFilter(this);
     ui->textBrowser->setLineWrapColumnOrWidth(QTextEdit::NoWrap);
@@ -2494,53 +2505,47 @@ void MainWindow::on_actionEnglish_triggered()
 {
     HinFlag = 0 , SanFlag = 0;
 }
-// int cnt = 0;
-int removeFile(const char * filename){
-    int result = remove(filename);
 
-    if (result == 0) {
-        // File deleted successfully
-        std::cout << "File deleted successfully." << std::endl;
-    } else {
-        // Error occurred while deleting the file
-        perror("Error deleting file");
-    }
-    return 0;
-}
 void MainWindow::on_start_Rec_clicked()
 {   
 
     // cout<<"start"<<endl;
-    QAudioEncoderSettings audioSettings;
-    audioSettings.setCodec("audio/x-flac");
-    audioSettings.setQuality(QMultimedia::HighQuality);
+    if(!isRecording){
+        ui->start_Rec->setText("Recording...");
+        QAudioEncoderSettings audioSettings;
+        audioSettings.setCodec("audio/x-flac");
+        audioSettings.setQuality(QMultimedia::HighQuality);
 
-    audioRecorder->setEncodingSettings(audioSettings);
-    QString audioFilePath = QString::fromStdString("./../data/audio/audio.flac");
-    audioRecorder->setOutputLocation(QUrl::fromLocalFile(audioFilePath));
-    audioRecorder->record();
+        audioRecorder->setEncodingSettings(audioSettings);
+            QString audioFilePath = QString::fromStdString("./../data/audio/audio.flac");
+            audioRecorder->setOutputLocation(QUrl::fromLocalFile(audioFilePath));
+            audioRecorder->record();
+            isRecording = true;
+    }
 }
 
 
 void MainWindow::on_stop_Rec_clicked()
 {
-    audioRecorder->stop();
+    if(isRecording){
+        ui->start_Rec->setText("Start Rec");
+        audioRecorder->stop();
 
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
+        string url = "http://localhost:5000/speech-to-text";
 
+        string audioFilePath = "./../data/audio/audio.flac";
+        string response = PerformPostRequest(url, audioFilePath);
+        if(response=="False") return;
+        QTextCursor cursor = ui->textBrowser->textCursor();
 
-    // cout<<"hello"<<endl;
-    string url = "http://localhost:5000/speech-to-text";
-
-    string audioFilePath = "./../data/audio/audio.flac";
-    string response = PerformPostRequest(url, audioFilePath);
-    if(response=="False") return;
-    QTextCursor cursor = ui->textBrowser->textCursor();
-
-    cursor.removeSelectedText();
-    cursor.insertText(QString::fromStdString(response));
-    cout << response << std::endl;
+        cursor.removeSelectedText();
+        cursor.insertText(QString::fromStdString(response));
+        cout << response << std::endl;
+        isRecording = false;
+        
+    }
 }
 

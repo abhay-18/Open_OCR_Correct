@@ -19,55 +19,108 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QProgressBar" name="progressBar">
-      <property name="maximumSize">
-       <size>
-        <width>500</width>
-        <height>16777215</height>
-       </size>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="enabled">
+       <bool>true</bool>
       </property>
-      <property name="value">
-       <number>0</number>
+      <property name="autoFillBackground">
+       <bool>false</bool>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <property name="title">
+       <string/>
       </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <widget class="QProgressBar" name="progressBar">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>10</y>
+         <width>500</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="start_Rec">
+       <property name="geometry">
+        <rect>
+         <x>510</x>
+         <y>10</y>
+         <width>250</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>250</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Start Rec</string>
+       </property>
+       <property name="shortcut">
+        <string/>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="lineEdit">
-      <property name="maximumSize">
-       <size>
-        <width>500</width>
-        <height>16777215</height>
-       </size>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string/>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="start_Rec">
-      <property name="maximumSize">
-       <size>
-        <width>250</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Start Rec</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="stop_Rec">
-      <property name="maximumSize">
-       <size>
-        <width>250</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Stop Rec</string>
-      </property>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>500</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="stop_Rec">
+       <property name="geometry">
+        <rect>
+         <x>510</x>
+         <y>0</y>
+         <width>250</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>250</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Stop Rec</string>
+       </property>
+       <property name="shortcut">
+        <string/>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
@@ -155,10 +208,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </layout>
     </item>
    </layout>
-   <zorder>lineEdit</zorder>
-   <zorder>progressBar</zorder>
-   <zorder>stop_Rec</zorder>
-   <zorder>start_Rec</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

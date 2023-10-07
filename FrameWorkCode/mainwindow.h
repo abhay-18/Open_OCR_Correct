@@ -35,7 +35,7 @@
 //#include"staticDict.h"
 //#include "lcsqt.h"
 #include<QAudioRecorder>
-
+#include <QtWidgets>
 //#include <set>
 using namespace std;
 
@@ -156,6 +156,10 @@ private:
     QString mFilename;
     QString mFilenamejpeg;
     QAudioRecorder* audioRecorder;
+    bool isRecording;
+    
+    // QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+P"), myButton);
+    // QObject::connect(myButton, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 };
 
 #endif // MAINWINDOW_H

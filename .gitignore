@@ -1,2 +1,6 @@
 FrameWorkCode/api/lib
 FrameWorkCode/api/lib64
+/home/abhay/MTP_NEW/FrameWorkCode/test_asr_api.cpp
+*.flac
+*.wav
+timetest.cpp

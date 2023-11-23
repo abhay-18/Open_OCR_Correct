@@ -43,7 +43,7 @@ Compiled and Tested on Ubuntu Ubuntu 16.04. with Qt 5
 3. Install libcurl:
 - $ sudo apt-get install libcurl4-openssl-dev
 
-3. Go to folder "FrameWorkCode", compile qpadfinal.pro and make:
+4. Go to folder "FrameWorkCode", compile qpadfinal.pro and make:
 - $ cd FrameWorkCode
 - $ qmake qpadfinal.pro
 - $ make

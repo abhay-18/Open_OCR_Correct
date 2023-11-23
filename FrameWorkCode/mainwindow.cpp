@@ -19,7 +19,56 @@
 #include <cstdio> // Include the C Standard I/O library
 #include <QShortcut>
 
+
 using namespace std;
+
+
+/*
+UNIQUE ID GENERATOR CLASS
+*/
+
+#include <chrono>
+#include <atomic>
+#include <cstdlib>
+#include <ctime>
+
+class UniqueId {
+public:
+    std::string getId() {
+        auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+
+        std::string alphanumericChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        const int charSetSize = alphanumericChars.size();
+
+        std::string id;
+        id.reserve(12);  // You can adjust the length as needed
+
+        // Add timestamp as part of the ID
+        id += std::to_string(timestamp);
+
+        // Add a separator
+        id += '-';
+
+        // Add a counter (you can replace this with a more sophisticated counter)
+        id += std::to_string(counter.fetch_add(1));
+
+        // Add random alphanumeric characters
+        for (int i = 0; i < 10; ++i) {
+            id += alphanumericChars[rand() % charSetSize];
+        }
+
+        return id;
+    }
+
+private:
+    std::atomic<uint64_t> counter{0};
+};
+
+
+
+//************************************
 
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -2527,12 +2576,16 @@ void MainWindow::on_actionEnglish_triggered()
     lang = "en";
 }
 
-int fileNo;
+
+string uid;
+
 void MainWindow::on_start_Rec_clicked()
 {   
+    UniqueId* UID = new UniqueId();
+
+    uid  = UID->getId(); 
+
     std::cout<<lang<<endl;
-    std::ifstream inFile("fileNo.txt");
-    if (inFile >> fileNo) cout<<"fileNo read successfully."<<endl;
 
     if(!isRecording){
         ui->start_Rec->setText("Recording...");
@@ -2541,11 +2594,13 @@ void MainWindow::on_start_Rec_clicked()
         audioSettings.setQuality(QMultimedia::HighQuality);
 
         audioRecorder->setEncodingSettings(audioSettings);
-            QString audioFilePath = QString::fromStdString("./../data/audio/audio"+to_string(fileNo)+".flac");
+            QString audioFilePath = QString::fromStdString("./../data/audio/aud-"+uid+".flac");
             audioRecorder->setOutputLocation(QUrl::fromLocalFile(audioFilePath));
             audioRecorder->record();
             isRecording = true;
     }
+
+    delete UID;
 }
 
 
@@ -2560,10 +2615,8 @@ void MainWindow::on_stop_Rec_clicked()
 
         string url = "http://localhost:5000/speech-to-text";
 
-        string audioFilePath = "./../data/audio/audio"+to_string(fileNo)+".flac";
-        fileNo++;
-        std::ofstream outFile("fileNo.txt");
-        outFile << fileNo;
+        string audioFilePath = "./../data/audio/aud-"+uid+".flac";
+        
         string response = PerformPostRequest(url, audioFilePath, lang, 20);
         if(response=="False") return;
         QTextCursor cursor = ui->textBrowser->textCursor();

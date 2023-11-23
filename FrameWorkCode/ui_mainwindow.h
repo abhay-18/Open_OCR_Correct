@@ -205,7 +205,7 @@ public:
         start_Rec->setObjectName(QString::fromUtf8("start_Rec"));
         start_Rec->setGeometry(QRect(510, 10, 250, 25));
         start_Rec->setMaximumSize(QSize(250, 16777215));
-        
+
         verticalLayout->addWidget(groupBox);
 
         groupBox_2 = new QGroupBox(centralWidget);

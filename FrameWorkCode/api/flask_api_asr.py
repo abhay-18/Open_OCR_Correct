@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 import pydub
 import wave
 import os
+import requests
+import time
 
 app = Flask(__name__)
 
@@ -37,27 +39,51 @@ def convertFlactoWav(flac_data):
     print("file converted from flac to wav!!!!!!!!")
 
 
+def recognize_sanskrit(audio_file_path):
+    API_URL = "https://api-inference.huggingface.co/models/Harveenchadha/vakyansh-wav2vec2-sanskrit-sam-60"
+    headers = {"Authorization": f"Bearer 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"}
+
+    with open(audio_file_path, "rb") as f:
+        data = f.read()
+
+    response = requests.post(API_URL, headers=headers, data=data)
+
+    while 'error' in response.json() and 'estimated_time' in response.json():
+        print(f"Model still loading. Waiting for {response.json()['estimated_time']} seconds.")
+        time.sleep(10)
+        response = requests.post(API_URL, headers=headers, data=data)
+
+    output = response.json()
+    print(output)
+    result = output['text']
+    print(result)
+    result=result.replace("<s>", '')
+    return result
 
 
 # Function to recognize speech
-def recognize_speech(audio_file_path):
+def recognize_speech(audio_file_path, lang):
     r = sr.Recognizer()
     with sr.AudioFile(audio_file_path) as source:
         r.pause_threshold = 0.7
         audio = r.listen(source); print(type(audio))
         try:
             print("Recognizing")
-            Query = r.recognize_google(audio, language='hi-In')
+            Query = r.recognize_google(audio, language=f'{lang}-In')
             print("the query is printed='", Query, "'")
         except Exception as e:
             print(e)
             print("Say that again")
             return "None"
         return Query
-    
+
+
 @app.route('/speech-to-text', methods=['POST'])
 def speech_to_text_endpoint():
-    print(request)
+    # print(request)
+    # print(request.files)
+    lang = request.form.get('lang')
+    # print(lang)
     if "file" in request.files:
         print("YES")
     else:
@@ -65,30 +91,17 @@ def speech_to_text_endpoint():
         return "False"
     audio_data = request.files["file"]
     convertFlactoWav(audio_data)
-    # print(audio_data)
-    # # wav_data = convert_to_wav(audio_data, input_format)
-    # fileName = secure_filename(audio_data.filename)
-    # print(fileName)
-    # # fileName = secure_filename(wav_data.filename)
-    # audio_data.save("../data/server_data/"+fileName)
-    # audio_data.save("../data/server_data/output.wav")
-    # if audio_data.filename.endswith('.flac'):
-    #     # Convert FLAC to WAV
-    #     audio = AudioSegment.from_file(audio_data, format='flac')
-    #     wav_data = audio.export(format='wav')
-
-    #     # Save the WAV file
-    #     wav_file_path = '../data/server_data/output.wav'
-    #     wav_data.export(wav_file_path, format='wav')
-
-    #     return jsonify({'message': 'Conversion and saving successful'})
     
     if not audio_data:
         return jsonify({'error': 'No audio data received'})
 
-    # Perform speech recognition
-    recognized_text = recognize_speech("../../data/server_data/output.wav")
+    # # Perform speech recognition
+    recognized_text = ""
+    if lang == "sn": 
+        recognized_text = recognize_sanskrit("../../data/server_data/output.wav")
     
+    else:
+        recognized_text = recognize_speech("../../data/server_data/output.wav", lang)
     # recognized_text="hello"
     # return jsonify({'text': recognized_text})
     return recognized_text

@@ -18,7 +18,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return total_size;
 }
 
-string PerformPostRequest(const string& url, const string& audioFilePath) {
+string PerformPostRequest(const string& url, const string& audioFilePath, const string& lang) {
     CURL* curl;
     CURLcode res;
     string response_data;
@@ -30,9 +30,14 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
         // Set the URL
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
-        // Set the POST data (audio file)
+        // Set the POST data (audio file and lang parameter)
         curl_httppost* post = NULL;
         curl_httppost* last = NULL;
+
+        // Add the lang parameter
+        curl_formadd(&post, &last, CURLFORM_COPYNAME, "lang", CURLFORM_COPYCONTENTS, lang.c_str(), CURLFORM_END);
+
+        // Add the audio file
         curl_formadd(&post, &last, CURLFORM_COPYNAME, "file", CURLFORM_FILE, audioFilePath.c_str(), CURLFORM_END);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
 
@@ -52,16 +57,21 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
         curl_easy_cleanup(curl);
         curl_formfree(post);
         curl_global_cleanup();
-    }
+        return response_data;
 
-    return response_data;
+    }
+    else {
+        cout << "Curl not defined" << endl;
+        return "False";
+    }
 }
+
 
 int main() {
     string url = "http://localhost:5000/speech-to-text"; // Replace with your API endpoint URL
-    string audioFilePath = "/home/abhay/Desktop/audio/audio.flac"; // Replace with the path to your audio file
+    string audioFilePath = "/home/abhay/MTP_NEW/data/audio/audio.flac"; // Replace with the path to your audio file
     //    /home/abhay/MTP_NEW/data/voice_data/data1.wav
-    string response = PerformPostRequest(url, audioFilePath);
+    string response = PerformPostRequest(url, audioFilePath, "sn");
     cout << response << std::endl;
 
 

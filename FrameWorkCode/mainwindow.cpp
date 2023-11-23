@@ -21,6 +21,7 @@
 
 using namespace std;
 
+
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     // This function will be called by libcurl to write response data
     size_t total_size = size * nmemb;
@@ -28,8 +29,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return total_size;
 }
 
-// Post request to flask Api ASR 
-string PerformPostRequest(const string& url, const string& audioFilePath) {
+string PerformPostRequest(const string& url, const string& audioFilePath, const string& lang, const int& timeout) {
     CURL* curl;
     CURLcode res;
     string response_data;
@@ -41,17 +41,23 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
         // Set the URL
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
-        // Set the POST data (audio file)
+        // Set the POST data (audio file and lang parameter)
         curl_httppost* post = NULL;
         curl_httppost* last = NULL;
 
-        cout<<audioFilePath.c_str()<<endl;
+        // Add the lang parameter
+        curl_formadd(&post, &last, CURLFORM_COPYNAME, "lang", CURLFORM_COPYCONTENTS, lang.c_str(), CURLFORM_END);
+
+        // Add the audio file
         curl_formadd(&post, &last, CURLFORM_COPYNAME, "file", CURLFORM_FILE, audioFilePath.c_str(), CURLFORM_END);
         curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
 
         // Set the write callback function for response data
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+
+        // Set the timeout in seconds
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 
         // Perform the POST request
         res = curl_easy_perform(curl);
@@ -68,8 +74,10 @@ string PerformPostRequest(const string& url, const string& audioFilePath) {
         return response_data;
 
     }
-    else cout<<"Curl not defined"<<endl;
-    return "False";
+    else {
+        cout << "Curl not defined" << endl;
+        return "False";
+    }
 }
 
 //gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile='page-%00d.jpeg' Book.pdf
@@ -402,6 +410,8 @@ void MainWindow::on_actionOpen_triggered()
 
 map<string, int> wordLineIndex;
 bool ConvertSlpDevFlag =0;
+// vector<int> wrongWordPositions;
+int currWrongPos = 0; 
 void MainWindow::on_actionSpell_Check_triggered()
 {
 
@@ -420,7 +430,9 @@ void MainWindow::on_actionSpell_Check_triggered()
         istringstream iss(str1);
         string strHtml = "<html><body>"; string line;
 
+        // wrongWordPositions.clear();
 
+        currWrongPos = 0;
         int value = 0;
         while (getline(iss, line)) {
                     istringstream issw(line);
@@ -435,6 +447,7 @@ void MainWindow::on_actionSpell_Check_triggered()
                             strHtml += wordNext; strHtml += " "; //cout << strHtml << endl;
                             value ++;
                         }
+
                         else{
                             string word1 = word;
                             word = toslp1(word);
@@ -446,10 +459,13 @@ void MainWindow::on_actionSpell_Check_triggered()
                             else if(PWords[word] > 0) { wordNext = "<font color=\'gray\'>" + toDev(word) + "</font>";}
                             else if((Dict[word] ==0) && (PWords[word] == 0) && (CPair[word].size() > 0)) {
                                 wordNext = "<font color=\'purple\'>" + toDev(CPair[word]) + "</font>";
+                                // std::cout<<"-->CPair word -> "<<wordNext<<endl;
                             } else {
                             wordNext = findDictEntries(toslp1(word),Dict,PWords, word.size());//replace m1 with m2,m1 for combined search
                             wordNext = find_and_replace_oddInstancesblue(wordNext);
                             wordNext = find_and_replace_oddInstancesorange(wordNext);
+                            // wrongWordPositions.push_back(strHtml.length());
+                            // std::cout<<"-->wordNext word -> "<<wordNext<<endl;
                             }
                             strHtml += wordNext; strHtml += " "; //cout << strHtml << endl;
                             value ++;
@@ -2491,25 +2507,33 @@ void MainWindow::on_actionErrorDetectionRepUniq_triggered()
     rep <<"TotalSuggestionsWithLSTM =" << "sum(y3+y4+y5+y6+y7+y8+y9+y10+y11+y12)" << endl;
 }
 
+string lang = "";
 void MainWindow::on_actionSanskrit_triggered()
 {
     HinFlag = 0 , SanFlag = 1;
+    lang = "sn";
+
 }
 
 void MainWindow::on_actionHindi_triggered()
 {
     HinFlag = 1 , SanFlag = 0;
+    lang = "hi";
 }
 
 void MainWindow::on_actionEnglish_triggered()
 {
     HinFlag = 0 , SanFlag = 0;
+    lang = "en";
 }
 
+int fileNo;
 void MainWindow::on_start_Rec_clicked()
 {   
+    std::cout<<lang<<endl;
+    std::ifstream inFile("fileNo.txt");
+    if (inFile >> fileNo) cout<<"fileNo read successfully."<<endl;
 
-    // cout<<"start"<<endl;
     if(!isRecording){
         ui->start_Rec->setText("Recording...");
         QAudioEncoderSettings audioSettings;
@@ -2517,7 +2541,7 @@ void MainWindow::on_start_Rec_clicked()
         audioSettings.setQuality(QMultimedia::HighQuality);
 
         audioRecorder->setEncodingSettings(audioSettings);
-            QString audioFilePath = QString::fromStdString("./../data/audio/audio.flac");
+            QString audioFilePath = QString::fromStdString("./../data/audio/audio"+to_string(fileNo)+".flac");
             audioRecorder->setOutputLocation(QUrl::fromLocalFile(audioFilePath));
             audioRecorder->record();
             isRecording = true;
@@ -2536,8 +2560,11 @@ void MainWindow::on_stop_Rec_clicked()
 
         string url = "http://localhost:5000/speech-to-text";
 
-        string audioFilePath = "./../data/audio/audio.flac";
-        string response = PerformPostRequest(url, audioFilePath);
+        string audioFilePath = "./../data/audio/audio"+to_string(fileNo)+".flac";
+        fileNo++;
+        std::ofstream outFile("fileNo.txt");
+        outFile << fileNo;
+        string response = PerformPostRequest(url, audioFilePath, lang, 20);
         if(response=="False") return;
         QTextCursor cursor = ui->textBrowser->textCursor();
 
@@ -2548,4 +2575,70 @@ void MainWindow::on_stop_Rec_clicked()
         
     }
 }
+
+
+// void MainWindow::on_jump_clicked()
+// {
+//     QString target = "THE";
+//     QTextCursor cursor(ui->textEdit->document());
+//     bool found = false;
+
+//     QTextDocument* doc = ui->textEdit->document();
+//     QTextCursor textCursor(doc);
+
+//     if (doc->isEmpty()) {
+//         // The document is empty.
+//     } else {
+//         QTextCursor searchCursor(doc);
+
+//         searchCursor.movePosition(QTextCursor::Start);
+//         while (!searchCursor.isNull() && !searchCursor.atEnd()) {
+//             searchCursor = doc->find(target, searchCursor);
+
+//             if (!searchCursor.isNull()) {
+//                 textCursor = searchCursor;
+//                 found = true;
+//                 break;
+//             }
+//             else break;
+//         }
+//     }
+
+//     if (found) {
+//         // Select the found text.
+//         textCursor.select(QTextCursor::WordUnderCursor);
+
+//         // Scroll to the cursor's position to make the selection visible.
+//         ui->textEdit->setTextCursor(textCursor);
+//         ui->textEdit->ensureCursorVisible();
+//         cout<<"Found"<<endl;
+//     } else {
+//         cout<<"Not Found"<<endl;
+
+//         // The target string was not found in the entire text.
+//     }
+
+
+//     // QString searchString = "wrongWords"; // Replace with the word you want to search for
+//     // QTextCursor cursor = ui->textEdit->textCursor();
+//     // QTextDocument *document = ui->textEdit->document();
+//     // int position = cursor.position();
+
+//     // while (true) {
+//     //     cursor = document->find(searchString, position);
+//     //     if (position == -1) {
+//     //         // Word not found, break the loop
+//     //         break;
+//     //     }
+
+//     //     // Select the word
+//     //     cursor.setPosition(position);
+//     //     cursor.setPosition(position + searchString.length(), QTextCursor::KeepAnchor);
+//     //     ui->textEdit->setTextCursor(cursor);
+//     //     ui->textEdit->setFocus();
+
+//     //     // Move the position to search for the next occurrence
+//     //     position += searchString.length();
+//     // }
+// }
 

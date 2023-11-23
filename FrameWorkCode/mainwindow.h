@@ -150,6 +150,10 @@ private slots:
 
     void on_stop_Rec_clicked();
 
+    // void on_pushButton_clicked();
+
+    // void on_jump_clicked();
+
 private:
     Ui::MainWindow *ui;
 
